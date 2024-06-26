@@ -22,12 +22,7 @@ namespace Projekt.Repositories
             var user = await _context.Users.Where(user => user.Login == loginRequest.Login)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (user == null)
-            {
-                throw new NotFoundException("User does not exist");
-            }
-
-            return user;
+            return user == null ? throw new NotFoundException("User does not exist") : user;
         }
 
         public async Task AddUser(RegisterRequest registerRequest, CancellationToken cancellationToken)

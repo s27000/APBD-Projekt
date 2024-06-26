@@ -15,15 +15,13 @@ namespace Projekt.Controllers
         {
             _loginService = loginService;
         }
-        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest loginRequest, CancellationToken cancellationToken)
         {
-            await _loginService.Login(loginRequest, cancellationToken);
-            return Ok("Successfully logged in");
+            var token = await _loginService.Login(loginRequest, cancellationToken);
+            return Ok(new {Token = token});
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest registerRequest, CancellationToken cancellationToken)
         {

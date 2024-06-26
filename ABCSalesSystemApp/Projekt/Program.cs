@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Projekt.Context;
 using Projekt.Middlewares;
+using Projekt.Models.Abstract;
 using Projekt.Repositories;
 using Projekt.Repositories.Interfaces;
 using Projekt.Services;
@@ -16,14 +18,46 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(
+/*
+c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        In = ParameterLocation.Header,
+        Description = "Please enter your JWT Token",
+        BearerFormat = "JWT"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+}
+*/
+);
+
 //DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 //Repositories
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 //Services
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IClientService, ClientService>();
 
 
 builder.Services.AddAuthentication(options =>
@@ -49,9 +83,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-//Middlewares
-app.UseMiddleware<ErrorHandlingMiddleware>();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -63,6 +94,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+//Middlewares
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.MapControllers();
 

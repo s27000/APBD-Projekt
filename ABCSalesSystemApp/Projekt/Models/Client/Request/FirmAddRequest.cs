@@ -2,12 +2,10 @@
 
 namespace Projekt.Models.Client.Request
 {
-    public class PersonAddRequest
+    public class FirmAddRequest
     {
         [Required]
         public string Name { get; set; }
-        [Required]
-        public string Surname { get; set; }
         [Required]
         public string Address { get; set; }
         [Required]
@@ -17,8 +15,8 @@ namespace Projekt.Models.Client.Request
         [RegularExpression("^[0-9]+$", ErrorMessage = "PhoneNumber must only contain digits.")]
         public string PhoneNumber { get; set; }
         [Required]
-        [Length(11, 11, ErrorMessage = "PESEL must be 11 digits long")]
-        [RegularExpression("^[0-9]+$", ErrorMessage = "PESEL must only contain digits.")]
-        public string PESEL { get; set; }
+        [Length(9, 14, ErrorMessage = "KRS must be between 9 and 14 digits long")]
+        [RegularExpression("^[0-9]+$", ErrorMessage = "KRS must only contain digits.")]
+        public string KRS { get; set; }
     }
 }

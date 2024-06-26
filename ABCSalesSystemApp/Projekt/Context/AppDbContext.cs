@@ -35,6 +35,11 @@ namespace Projekt.Context
 
                 entity.Property(e => e.IdClient)
                     .HasColumnName("IdClient");
+                entity.Property(e => e.ClientType)
+                    .HasConversion<string>()
+                    .HasColumnName("ClientType");
+                entity.Property(e => e.Depreciated)
+                    .HasColumnName("Depreciated");
             });
 
             modelBuilder.Entity<Firm>(entity =>
