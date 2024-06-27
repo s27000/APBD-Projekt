@@ -10,16 +10,27 @@ namespace Projekt.Services
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IContractRepository _contractRepository;
         private readonly ICurrencyClient _currencyClient;
-        public PaymentService(IPaymentRepository paymentRepository, ICurrencyClient currencyClient)
+        public PaymentService(IPaymentRepository paymentRepository, IContractRepository contractRepository, ICurrencyClient currencyClient)
         {
             _paymentRepository = paymentRepository;
             _currencyClient = currencyClient;
+            _contractRepository = contractRepository;
         }
         public async Task<int> AddProductContractPayment(ProductContractPaymentRequest productContractPaymentRequest, CancellationToken cancellationToken)
         {
             productContractPaymentRequest.VerifyBody();
             return await _paymentRepository.AddProductContractPayment(productContractPaymentRequest, cancellationToken);
+        }
+
+        public async Task<Tuple<int,int>> AddSubscriptionContractPayment(SubscriptionContractPaymentRequest subscriptionContractPaymentRequest, CancellationToken cancellationToken)
+        {
+            subscriptionContractPaymentRequest.VerifyBody();
+            var paymentId = await _paymentRepository.AddSubscriptionContractPayment(subscriptionContractPaymentRequest, cancellationToken);
+            var newContractId = await _contractRepository.GenerateSubscriptionRenewelContract(subscriptionContractPaymentRequest.IdSubscriptionContract, cancellationToken);
+            
+            return new Tuple<int, int>(paymentId, newContractId);
         }
 
         public async Task<ProductIncomeResponse> GetProductPredictedIncome(TotalIncomeRequest totalIncomeRequest, int idProduct, string? currency, CancellationToken cancellationToken)

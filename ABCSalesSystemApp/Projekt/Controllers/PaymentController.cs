@@ -22,6 +22,14 @@ namespace Projekt.Controllers
             var newPaymentId = await _paymentService.AddProductContractPayment(productContractPaymentRequest, cancellationToken);
             return Ok("Successfully added a new product contract payment, with the id of: " + newPaymentId);
         }
+        [HttpPost("subscriptionContractPayment")]
+        public async Task<IActionResult> AddSubscriptionContractPayment(SubscriptionContractPaymentRequest subscriptionContractPaymentRequest,
+            CancellationToken cancellationToken)
+        {
+            var tupleIds = await _paymentService.AddSubscriptionContractPayment(subscriptionContractPaymentRequest, cancellationToken);
+            return Ok("Successfully added a new subscription contract payment, with the id of: " + tupleIds.Item1 +
+                ", a new renewel contract has been created with the id of: " + tupleIds.Item2);
+        }
 
         [HttpGet("totalRealIncome")]
         public async Task<IActionResult> GetTotalRealIncome([FromQuery] TotalIncomeRequest totalIncomeRequest, [FromQuery] int idProduct, [FromQuery] string? currency, CancellationToken cancellationToken)

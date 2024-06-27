@@ -13,7 +13,7 @@ namespace Projekt.Models.Domain
         public string ProductUpdateDescription { get; set; }
         public int UpdateSupportDuration { get; set; }
         public int? IdDiscount { get; set; }
-        public int? Value { get; set; }
+        public int? DiscountValue { get; set; }
         public decimal TotalPrice { get; set; }
         public virtual Client Client { get; set; }
         public virtual Product Product { get; set; }

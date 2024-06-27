@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Projekt.Context;
 
@@ -11,9 +12,11 @@ using Projekt.Context;
 namespace Projekt.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240627171509_SubscriptionCorrection")]
+    partial class SubscriptionCorrection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,10 +205,6 @@ namespace Projekt.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DateTo");
 
-                    b.Property<int?>("DiscountValue")
-                        .HasColumnType("int")
-                        .HasColumnName("DiscountValue");
-
                     b.Property<int>("IdClient")
                         .HasColumnType("int")
                         .HasColumnName("IdClient");
@@ -235,6 +234,10 @@ namespace Projekt.Migrations
                     b.Property<int>("UpdateSupportDuration")
                         .HasColumnType("int")
                         .HasColumnName("UpdateSupportExtension");
+
+                    b.Property<int?>("Value")
+                        .HasColumnType("int")
+                        .HasColumnName("Value");
 
                     b.HasKey("IdProductContract");
 
@@ -301,94 +304,15 @@ namespace Projekt.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Name");
 
-                    b.Property<int>("SubscriptionDurationInMonths")
+                    b.Property<int>("SubscriptionRenewelInMonths")
                         .HasColumnType("int")
-                        .HasColumnName("SubscriptionDurationInMonths");
+                        .HasColumnName("SubscriptionRenewelInMonths");
 
                     b.HasKey("IdSubscription");
 
                     b.HasIndex("IdProduct");
 
                     b.ToTable("subscription", (string)null);
-                });
-
-            modelBuilder.Entity("Projekt.Models.Domain.SubscriptionContract", b =>
-                {
-                    b.Property<int>("IdSubscriptionContract")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("IdSubscriptionContract");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSubscriptionContract"));
-
-                    b.Property<DateTime>("DateFrom")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DateFrom");
-
-                    b.Property<DateTime>("DateTo")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DateTo");
-
-                    b.Property<int?>("DiscountValue")
-                        .HasColumnType("int")
-                        .HasColumnName("DiscountValue");
-
-                    b.Property<int>("IdClient")
-                        .HasColumnType("int")
-                        .HasColumnName("IdClient");
-
-                    b.Property<int?>("IdDiscount")
-                        .HasColumnType("int")
-                        .HasColumnName("IdDiscount");
-
-                    b.Property<int>("IdSubscription")
-                        .HasColumnType("int")
-                        .HasColumnName("IdSubscription");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("Price");
-
-                    b.HasKey("IdSubscriptionContract");
-
-                    b.HasIndex("IdClient");
-
-                    b.HasIndex("IdDiscount");
-
-                    b.HasIndex("IdSubscription");
-
-                    b.ToTable("subscriptionContract", (string)null);
-                });
-
-            modelBuilder.Entity("Projekt.Models.Domain.SubscriptionContractPayment", b =>
-                {
-                    b.Property<int>("IdSubscriptionContractPayment")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("IdSubscriptionContractPayment");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSubscriptionContractPayment"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Description");
-
-                    b.Property<int>("IdSubscriptionContract")
-                        .HasColumnType("int")
-                        .HasColumnName("IdSubscriptionContract");
-
-                    b.Property<decimal>("PaymentValue")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("PaymentValue");
-
-                    b.HasKey("IdSubscriptionContractPayment");
-
-                    b.HasIndex("IdSubscriptionContract");
-
-                    b.ToTable("subscriptionContractPayment", (string)null);
                 });
 
             modelBuilder.Entity("Projekt.Models.Domain.User", b =>
@@ -481,42 +405,6 @@ namespace Projekt.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Projekt.Models.Domain.SubscriptionContract", b =>
-                {
-                    b.HasOne("Projekt.Models.Domain.Client", "Client")
-                        .WithMany("SubscriptionContracts")
-                        .HasForeignKey("IdClient")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Projekt.Models.Domain.Discount", "Discount")
-                        .WithMany("SubscriptionContracts")
-                        .HasForeignKey("IdDiscount");
-
-                    b.HasOne("Projekt.Models.Domain.Subscription", "Subscription")
-                        .WithMany("SubscriptionContracts")
-                        .HasForeignKey("IdSubscription")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Discount");
-
-                    b.Navigation("Subscription");
-                });
-
-            modelBuilder.Entity("Projekt.Models.Domain.SubscriptionContractPayment", b =>
-                {
-                    b.HasOne("Projekt.Models.Domain.SubscriptionContract", "SubscriptionContract")
-                        .WithMany("SubscriptionContractPayments")
-                        .HasForeignKey("IdSubscriptionContract")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SubscriptionContract");
-                });
-
             modelBuilder.Entity("Projekt.Models.Domain.Client", b =>
                 {
                     b.Navigation("Firm")
@@ -526,15 +414,11 @@ namespace Projekt.Migrations
                         .IsRequired();
 
                     b.Navigation("ProductContracts");
-
-                    b.Navigation("SubscriptionContracts");
                 });
 
             modelBuilder.Entity("Projekt.Models.Domain.Discount", b =>
                 {
                     b.Navigation("ProductContracts");
-
-                    b.Navigation("SubscriptionContracts");
                 });
 
             modelBuilder.Entity("Projekt.Models.Domain.Product", b =>
@@ -547,16 +431,6 @@ namespace Projekt.Migrations
             modelBuilder.Entity("Projekt.Models.Domain.ProductContract", b =>
                 {
                     b.Navigation("ProductContractPayments");
-                });
-
-            modelBuilder.Entity("Projekt.Models.Domain.Subscription", b =>
-                {
-                    b.Navigation("SubscriptionContracts");
-                });
-
-            modelBuilder.Entity("Projekt.Models.Domain.SubscriptionContract", b =>
-                {
-                    b.Navigation("SubscriptionContractPayments");
                 });
 #pragma warning restore 612, 618
         }

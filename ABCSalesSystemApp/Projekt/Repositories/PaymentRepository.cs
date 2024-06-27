@@ -28,7 +28,7 @@ namespace Projekt.Repositories
 
             var newProductContractPayment = new ProductContractPayment()
             {
-                IdProductContract = productContractPaymentRequest.IdProductContract,
+                IdProductContract = productContract.IdProductContract,
                 Description = productContractPaymentRequest.Description,
                 Date = productContractPaymentRequest.Date,
                 PaymentValue = productContractPaymentRequest.PaymentValue
@@ -38,6 +38,28 @@ namespace Projekt.Repositories
             await _context.SaveChangesAsync(cancellationToken);
 
             return newProductContractPayment.IdProductContractPayment;
+        }
+
+        public async Task<int> AddSubscriptionContractPayment(SubscriptionContractPaymentRequest subscriptionContractPaymentRequest, CancellationToken cancellationToken)
+        {
+            var subscriptionContract = await _contractRepository.GetSubscriptionContract(subscriptionContractPaymentRequest.IdSubscriptionContract, cancellationToken);
+            PaymentDateIsValid(subscriptionContractPaymentRequest.Date, subscriptionContract.DateFrom, subscriptionContract.DateTo);
+
+            await SubscriptionContractIsNotPaidFor(subscriptionContract, cancellationToken);
+            SubscriptionPaymentIsCorrect(subscriptionContract, subscriptionContractPaymentRequest.PaymentValue, cancellationToken);
+
+            var newSubscriptionContractPayment = new SubscriptionContractPayment()
+            {
+                IdSubscriptionContract = subscriptionContract.IdSubscriptionContract,
+                Description = subscriptionContractPaymentRequest.Description,
+                Date = subscriptionContractPaymentRequest.Date,
+                PaymentValue = subscriptionContractPaymentRequest.PaymentValue
+            };
+
+            await _context.SubscriptionContractPayments.AddAsync(newSubscriptionContractPayment, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return newSubscriptionContractPayment.IdSubscriptionContract;
         }
 
         public async Task<ProductIncomeResponse> GetProductPredictedIncome(TotalIncomeRequest totalIncomeRequest, int idProduct, CancellationToken cancellationToken)
@@ -52,7 +74,7 @@ namespace Projekt.Repositories
 
             foreach (var productContract in productContractsList)
             {
-                var totalContractPayment = await GetTotalContractPayment(productContract, cancellationToken);
+                var totalContractPayment = await GetTotalProductContractPayment(productContract, cancellationToken);
                 totalProductPredictedIncome += productContract.TotalPrice;
             }
 
@@ -79,7 +101,7 @@ namespace Projekt.Repositories
 
             foreach (var productContract in productContractsList)
             {
-                var totalContractPayment = await GetTotalContractPayment(productContract, cancellationToken);
+                var totalContractPayment = await GetTotalProductContractPayment(productContract, cancellationToken);
                 if (totalContractPayment == productContract.TotalPrice)
                 {
                     totalProductRealIncome += productContract.TotalPrice;
@@ -145,11 +167,31 @@ namespace Projekt.Repositories
             };
         }
 
-        private async Task<decimal> GetTotalContractPayment(ProductContract productContract, CancellationToken cancellationToken)
+        private async Task<decimal> GetTotalProductContractPayment(ProductContract productContract, CancellationToken cancellationToken)
         {
             return await _context.ProductContractPayments
                 .Where(e => e.IdProductContract == productContract.IdProductContract)
                 .SumAsync(e => e.PaymentValue, cancellationToken);
+        }
+
+        private async Task SubscriptionContractIsNotPaidFor(SubscriptionContract subscriptionContract, CancellationToken cancellationToken)
+        {
+            var isAlreadyPurchased = await _context.SubscriptionContractPayments
+                .Where(e => e.IdSubscriptionContract == subscriptionContract.IdSubscriptionContract)
+                .AnyAsync(cancellationToken);
+
+            if (isAlreadyPurchased)
+            {
+                throw new AlreadyPurchasedException("This Contract has already been fulfilled");
+            }
+        }
+
+        private void SubscriptionPaymentIsCorrect(SubscriptionContract subscriptionContract, decimal paymentValue, CancellationToken cancellationToken)
+        {
+            if (subscriptionContract.Price != paymentValue)
+            {
+                throw new ArgumentException("The Payment for this subscription is incorrect");
+            }
         }
 
         private void PaymentDateIsValid(DateTime paymentDate, DateTime contractDateFrom, DateTime contractDateTo)
@@ -162,7 +204,7 @@ namespace Projekt.Repositories
 
         private async Task ProductContractPaymentIsNotFulfilledOrOverflown(ProductContract productContract, decimal paymentValue, CancellationToken cancellationToken)
         {
-            var totalContractPayment = await GetTotalContractPayment(productContract, cancellationToken);
+            var totalContractPayment = await GetTotalProductContractPayment(productContract, cancellationToken);
             
             if (totalContractPayment == productContract.TotalPrice)
             {

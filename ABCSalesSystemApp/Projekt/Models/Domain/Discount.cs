@@ -8,5 +8,6 @@
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
         public ICollection<ProductContract> ProductContracts { get; set; }
+        public ICollection<SubscriptionContract> SubscriptionContracts { get; set; }
     }
 }

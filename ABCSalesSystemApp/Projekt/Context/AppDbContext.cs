@@ -15,6 +15,8 @@ namespace Projekt.Context
         public virtual DbSet<ProductContract> ProductContracts { get; set; }
         public virtual DbSet<ProductContractPayment> ProductContractPayments { get; set; }
         public virtual DbSet<Subscription> Subscriptions { get; set; }
+        public virtual DbSet<SubscriptionContract> SubscriptionContracts { get; set; }
+        public virtual DbSet<SubscriptionContractPayment> SubscriptionContractPayments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>(entity =>
@@ -160,8 +162,8 @@ namespace Projekt.Context
                     .HasColumnName("UpdateSupportExtension");
                 entity.Property(e => e.IdDiscount)
                     .HasColumnName("IdDiscount");
-                entity.Property(e => e.Value)
-                    .HasColumnName("Value");
+                entity.Property(e => e.DiscountValue)
+                    .HasColumnName("DiscountValue");
                 entity.Property(e => e.TotalPrice)
                     .HasColumnName("TotalPrice");
 
@@ -211,14 +213,70 @@ namespace Projekt.Context
                     .HasColumnName("IdProduct");
                 entity.Property(e => e.Name)
                     .HasColumnName("Name");
-                entity.Property(e => e.SubscriptionRenewelInMonths)
-                    .HasColumnName("SubscriptionRenewelInMonths");
-                entity.Property(e => e.Price)
-                    .HasColumnName("Price");
+                entity.Property(e => e.SubscriptionDurationInMonths)
+                    .HasColumnName("SubscriptionDurationInMonths");
+                entity.Property(e => e.MonthlyPrice)
+                    .HasColumnName("MonthlyPrice");
 
                 entity.HasOne(e => e.Product)
                     .WithMany(e => e.Subscriptions)
                     .HasForeignKey(e => e.IdProduct);
+            });
+
+            modelBuilder.Entity<SubscriptionContract>(entity =>
+            {
+                entity.HasKey(e => e.IdSubscriptionContract);
+
+                entity.ToTable("subscriptionContract");
+
+                entity.Property(e => e.IdSubscriptionContract)
+                    .HasColumnName("IdSubscriptionContract");
+                entity.Property(e => e.IdClient)
+                    .HasColumnName("IdClient");
+                entity.Property(e => e.IdSubscription)
+                    .HasColumnName("IdSubscription");
+                entity.Property(e => e.DateFrom)
+                    .HasColumnName("DateFrom");
+                entity.Property(e => e.DateTo)
+                    .HasColumnName("DateTo");
+                entity.Property(e => e.IdDiscount)
+                    .HasColumnName("IdDiscount");
+                entity.Property(e => e.DiscountValue)
+                    .HasColumnName("DiscountValue");
+                entity.Property(e => e.Price)
+                    .HasColumnName("Price");
+
+                entity.HasOne(e => e.Client)
+                    .WithMany(e => e.SubscriptionContracts)
+                    .HasForeignKey(e => e.IdClient);
+
+                entity.HasOne(e => e.Subscription)
+                    .WithMany(e => e.SubscriptionContracts)
+                    .HasForeignKey(e => e.IdSubscription);
+
+                entity.HasOne(e => e.Discount)
+                    .WithMany(e => e.SubscriptionContracts)
+                    .HasForeignKey(e => e.IdDiscount);
+            });
+
+            modelBuilder.Entity<SubscriptionContractPayment>(entity =>
+            {
+                entity.HasKey(e => e.IdSubscriptionContractPayment);
+
+                entity.ToTable("subscriptionContractPayment");
+
+                entity.Property(e => e.IdSubscriptionContractPayment)
+                    .HasColumnName("IdSubscriptionContractPayment");
+                entity.Property(e => e.IdSubscriptionContract)
+                    .HasColumnName("IdSubscriptionContract");
+                entity.Property(e => e.Description)
+                    .HasColumnName("Description");
+                entity.Property(e => e.PaymentValue)
+                    .HasColumnName("PaymentValue");
+
+                entity.HasOne(e => e.SubscriptionContract)
+                    .WithMany(e => e.SubscriptionContractPayments)
+                    .HasForeignKey(e => e.IdSubscriptionContract);
             });
         }
     }

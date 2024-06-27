@@ -1,5 +1,6 @@
 ﻿using Projekt.Exceptions;
 using Projekt.Models.Contract;
+using Projekt.Models.Payment.Request;
 using Projekt.Repositories.Interfaces;
 using Projekt.Services.Interfaces;
 
@@ -8,8 +9,10 @@ namespace Projekt.Services
     public class ContractService : IContractService
     {
         private readonly IContractRepository _contractRepository;
-        public ContractService(IContractRepository contractRepository)
+        private readonly IPaymentRepository _paymentRepository;
+        public ContractService(IContractRepository contractRepository, IPaymentRepository paymentRepository)
         {
+            _paymentRepository = paymentRepository;
             _contractRepository = contractRepository;
         }
         public async Task<int> AddProductContract(ProductContractAddRequest productContractAddRequest, CancellationToken cancellationToken)
@@ -21,6 +24,28 @@ namespace Projekt.Services
             var updateSupportDuration = 1 + productContractAddRequest.UpdateSupportExtension;
 
             return await _contractRepository.AddProductContract(productContractAddRequest, updateSupportDuration, cancellationToken);
+        }
+
+        public async Task<Tuple<int, int, int>> AddSubscriptonContract(SubscriptionContractAddRequest subscriptionContractAddRequest, CancellationToken cancellationToken)
+        {
+            var subscriptionContractId = await _contractRepository.AddSubscriptionContract(subscriptionContractAddRequest, cancellationToken);
+            Console.WriteLine(subscriptionContractId);
+            var subscriptionContract = await _contractRepository.GetSubscriptionContract(subscriptionContractId, cancellationToken);
+            Console.WriteLine(subscriptionContract.IdSubscriptionContract);
+
+            Console.WriteLine("SubscriptionContract DateFrom: " + subscriptionContract.DateFrom);
+
+            var contractPaymentId = await _paymentRepository.AddSubscriptionContractPayment(new SubscriptionContractPaymentRequest()
+            {
+                IdSubscriptionContract = subscriptionContractId,
+                Description = "Subscription Purchase",
+                Date = subscriptionContract.DateFrom,
+                PaymentValue = subscriptionContract.Price
+            }, cancellationToken);
+
+            var newContractId = await _contractRepository.GenerateSubscriptionRenewelContract(subscriptionContract.IdSubscriptionContract, cancellationToken);
+
+            return new Tuple<int, int, int>(subscriptionContractId, contractPaymentId, newContractId);
         }
 
         public void TimespanIsSufficient(DateTime dateFrom, DateTime dateTo)
