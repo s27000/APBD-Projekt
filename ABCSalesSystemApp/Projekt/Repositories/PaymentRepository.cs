@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Projekt.Context;
 using Projekt.Exceptions;
-using Projekt.Migrations;
 using Projekt.Models.Domain;
 using Projekt.Models.Payment.Request;
 using Projekt.Models.Payment.Responce;

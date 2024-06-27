@@ -14,6 +14,7 @@ namespace Projekt.Context
         public virtual DbSet<Discount> Discounts { get; set; }
         public virtual DbSet<ProductContract> ProductContracts { get; set; }
         public virtual DbSet<ProductContractPayment> ProductContractPayments { get; set; }
+        public virtual DbSet<Subscription> Subscriptions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>(entity =>
@@ -197,6 +198,27 @@ namespace Projekt.Context
                 entity.HasOne(e => e.ProductContract)
                     .WithMany(e => e.ProductContractPayments)
                     .HasForeignKey(e => e.IdProductContract);
+            });
+            modelBuilder.Entity<Subscription>(entity =>
+            {
+                entity.HasKey(e => e.IdSubscription);
+
+                entity.ToTable("subscription");
+
+                entity.Property(e => e.IdSubscription)
+                    .HasColumnName("IdSubscription");
+                entity.Property(e => e.IdProduct)
+                    .HasColumnName("IdProduct");
+                entity.Property(e => e.Name)
+                    .HasColumnName("Name");
+                entity.Property(e => e.SubscriptionRenewelInMonths)
+                    .HasColumnName("SubscriptionRenewelInMonths");
+                entity.Property(e => e.Price)
+                    .HasColumnName("Price");
+
+                entity.HasOne(e => e.Product)
+                    .WithMany(e => e.Subscriptions)
+                    .HasForeignKey(e => e.IdProduct);
             });
         }
     }

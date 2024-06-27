@@ -12,5 +12,6 @@ namespace Projekt.Models.Domain
         public ProductCategory ProductCategory { get; set; }
         public decimal AnnualPrice { get; set; }
         public ICollection<ProductContract> ProductContracts { get; set; }
+        public ICollection<Subscription> Subscriptions { get; set; }
     }
 }

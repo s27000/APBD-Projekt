@@ -12,8 +12,8 @@ using Projekt.Context;
 namespace Projekt.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240627100618_ProductContractPaymentsAddedDescription")]
-    partial class ProductContractPaymentsAddedDescription
+    [Migration("20240627170455_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -282,6 +282,39 @@ namespace Projekt.Migrations
                     b.ToTable("productContractPayment", (string)null);
                 });
 
+            modelBuilder.Entity("Projekt.Models.Domain.Subscription", b =>
+                {
+                    b.Property<int>("IdSubscription")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("IdSubscription");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSubscription"));
+
+                    b.Property<int>("IdProduct")
+                        .HasColumnType("int")
+                        .HasColumnName("IdProduct");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Price");
+
+                    b.Property<int>("SubscriptionRenewelInMonths")
+                        .HasColumnType("int")
+                        .HasColumnName("SubscriptionRenewelInMonths");
+
+                    b.HasKey("IdSubscription");
+
+                    b.HasIndex("IdProduct");
+
+                    b.ToTable("subscription", (string)null);
+                });
+
             modelBuilder.Entity("Projekt.Models.Domain.User", b =>
                 {
                     b.Property<string>("Login")
@@ -361,6 +394,17 @@ namespace Projekt.Migrations
                     b.Navigation("ProductContract");
                 });
 
+            modelBuilder.Entity("Projekt.Models.Domain.Subscription", b =>
+                {
+                    b.HasOne("Projekt.Models.Domain.Product", "Product")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("IdProduct")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Projekt.Models.Domain.Client", b =>
                 {
                     b.Navigation("Firm")
@@ -380,6 +424,8 @@ namespace Projekt.Migrations
             modelBuilder.Entity("Projekt.Models.Domain.Product", b =>
                 {
                     b.Navigation("ProductContracts");
+
+                    b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("Projekt.Models.Domain.ProductContract", b =>
