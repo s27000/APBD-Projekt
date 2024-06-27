@@ -1,4 +1,5 @@
 ﻿using Projekt.Models.Client.Request;
+using Projekt.Models.Domain;
 
 namespace Projekt.Repositories.Interfaces
 {
@@ -9,5 +10,6 @@ namespace Projekt.Repositories.Interfaces
         Task RemoveClient(int idClient, CancellationToken cancellationToken);
         Task UpdatePersonClient(int idClient, PersonModifyRequest personModifyRequest, CancellationToken cancellationToken);
         Task UpdateFirmClient(int idClient, FirmModifyRequest firmModifyRequest, CancellationToken cancellationToken);
+        Task<Client> GetClient(int idClient, CancellationToken cancellationToken);
     }
 }

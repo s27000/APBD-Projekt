@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Projekt.Context;
 
@@ -11,9 +12,11 @@ using Projekt.Context;
 namespace Projekt.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240626165846_ProductContractUpdate2.0")]
+    partial class ProductContractUpdate20
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,13 +197,13 @@ namespace Projekt.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdContract"));
 
-                    b.Property<DateTime>("DateFrom")
+                    b.Property<DateTime>("ContractDateFrom")
                         .HasColumnType("datetime2")
-                        .HasColumnName("DateFrom");
+                        .HasColumnName("ContractDateFrom");
 
-                    b.Property<DateTime>("DateTo")
+                    b.Property<DateTime>("ContractDateTo")
                         .HasColumnType("datetime2")
-                        .HasColumnName("DateTo");
+                        .HasColumnName("ContractDateTo");
 
                     b.Property<int>("IdClient")
                         .HasColumnType("int")

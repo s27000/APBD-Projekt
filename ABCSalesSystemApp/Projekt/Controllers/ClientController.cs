@@ -33,7 +33,7 @@ namespace Projekt.Controllers
             return Ok("Successfully added new person client, with the id of: " + newPersonClientId);
         }
 
-        [HttpDelete("/{idClient:int}")]
+        [HttpDelete("remove/{idClient:int}")]
         public async Task<IActionResult> RemoveClient(int idClient, CancellationToken cancellationToken)
         {
             await _clientService.RemoveClient(idClient, cancellationToken);

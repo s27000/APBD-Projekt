@@ -42,7 +42,6 @@ namespace Projekt.Repositories
 
             return newClient.IdClient;
         }
-
         public async Task<int> AddPersonClient(PersonAddRequest personAddRequest, CancellationToken cancellationToken)
         {
             var newClient = new Client()
@@ -70,10 +69,21 @@ namespace Projekt.Repositories
             return newClient.IdClient;
         }
 
+        public async Task<Client> GetClient(int idClient, CancellationToken cancellationToken)
+        {
+            var client =  await _context.Clients.Where(e => e.IdClient == idClient).FirstOrDefaultAsync(cancellationToken)
+                ?? throw new NotFoundException("Client does not exist");
+
+            if (client.Depreciated)
+            {
+                throw new NoContentException("Client has been depreciated");
+            }
+            return client; 
+        }
+
         public async Task RemoveClient(int idClient, CancellationToken cancellationToken)
         {
-            var client = await _context.Clients.Where(e => e.IdClient == idClient).FirstOrDefaultAsync(cancellationToken) 
-                ?? throw new NotFoundException("Client does not exist");
+            var client = await GetClient(idClient, cancellationToken);
 
             if (client.ClientType == ClientType.Person)
             {
@@ -94,6 +104,7 @@ namespace Projekt.Repositories
         {
             var firm = await _context.Firms.Where(e => e.IdClient == idClient).FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException("Firm does not exist");
+
             firm.Name = firmModifyRequest.Name;
             firm.Address = firmModifyRequest.Address;
             firm.Email = firmModifyRequest.Email;

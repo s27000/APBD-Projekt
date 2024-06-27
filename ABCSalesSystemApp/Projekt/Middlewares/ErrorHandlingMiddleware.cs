@@ -37,7 +37,7 @@ namespace Projekt.Middlewares
             {
                 statusCode = HttpStatusCode.Unauthorized;
             }
-            else if(exception is NotFoundException)
+            else if (exception is NotFoundException || exception is NoContentException)
             {
                 statusCode = HttpStatusCode.NotFound;
             }
@@ -45,7 +45,7 @@ namespace Projekt.Middlewares
             {
                 statusCode = HttpStatusCode.BadRequest;
             }
-
+            
             context.Response.StatusCode = (int)statusCode;
             context.Response.ContentType = "application/json";
 

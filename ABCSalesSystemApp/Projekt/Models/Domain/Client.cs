@@ -9,5 +9,6 @@ namespace Projekt.Models.Domain
         public bool Depreciated { get; set; }
         public virtual Firm Firm { get; set; }
         public virtual Person Person { get; set; }
+        public virtual ICollection<ProductContract> ProductContracts { get; set; }
     }
 }

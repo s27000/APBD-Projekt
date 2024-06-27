@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Projekt.Context;
 
@@ -11,9 +12,11 @@ using Projekt.Context;
 namespace Projekt.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240626154013_DiscountCorrection")]
+    partial class DiscountCorrection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,13 +197,13 @@ namespace Projekt.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdContract"));
 
-                    b.Property<DateTime>("DateFrom")
+                    b.Property<DateTime>("ContractDateFrom")
                         .HasColumnType("datetime2")
-                        .HasColumnName("DateFrom");
+                        .HasColumnName("ContractDateFrom");
 
-                    b.Property<DateTime>("DateTo")
+                    b.Property<DateTime>("ContractDateTo")
                         .HasColumnType("datetime2")
-                        .HasColumnName("DateTo");
+                        .HasColumnName("ContractDateTo");
 
                     b.Property<int>("IdClient")
                         .HasColumnType("int")
@@ -228,12 +231,12 @@ namespace Projekt.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("TotalPrice");
 
-                    b.Property<int>("UpdateSupportDuration")
+                    b.Property<int>("UpdateSupportExtension")
                         .HasColumnType("int")
                         .HasColumnName("UpdateSupportExtension");
 
-                    b.Property<int?>("Value")
-                        .HasColumnType("int")
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("Value");
 
                     b.HasKey("IdContract");

@@ -10,6 +10,9 @@ namespace Projekt.Context
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<Person> Persons { get; set; }
         public virtual DbSet<Firm> Firms { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Discount> Discounts { get; set; }
+        public virtual DbSet<ProductContract> ProductContract { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>(entity =>
@@ -90,6 +93,87 @@ namespace Projekt.Context
                 entity.HasOne(d => d.Client)
                     .WithOne(d => d.Person)
                     .HasForeignKey<Person>(d => d.IdClient);
+            });
+
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.HasKey(e => e.IdProduct);
+
+                entity.ToTable("product");
+
+                entity.Property(e => e.IdProduct)
+                    .HasColumnName("IdProduct");
+                entity.Property(e => e.Name)
+                    .HasColumnName("Name");
+                entity.Property(e => e.Description)
+                    .HasColumnName("Description");
+                entity.Property(e => e.Version)
+                    .HasColumnName("Version");
+                entity.Property(e => e.ProductCategory)
+                    .HasConversion<string>()
+                    .HasColumnName("ProductCategory");
+                entity.Property(e => e.AnnualPrice)
+                    .HasColumnName("AnnualPrice");
+            });
+
+            modelBuilder.Entity<Discount>(entity =>
+            {
+                entity.HasKey(e => e.IdDiscount);
+
+                entity.ToTable("discount");
+
+                entity.Property(e => e.IdDiscount)
+                    .HasColumnName("IdDiscount");
+                entity.Property(e => e.Name)
+                    .HasColumnName("Name");
+                entity.Property(e => e.Value)
+                    .HasColumnName("Value");
+                entity.Property(e => e.DateFrom)
+                    .HasColumnName("DateFrom");
+                entity.Property(e => e.DateTo)
+                    .HasColumnName("DateTo");
+            });
+
+            modelBuilder.Entity<ProductContract>(entity =>
+            {
+                entity.HasKey(e => e.IdContract);
+
+                entity.ToTable("productContract");
+
+                entity.Property(e => e.IdContract)
+                    .HasColumnName("IdContract");
+                entity.Property(e => e.IdClient)
+                    .HasColumnName("IdClient");
+                entity.Property(e => e.IdProduct)
+                    .HasColumnName("IdProduct");
+                entity.Property(e => e.ProductVersion)
+                    .HasColumnName("ProductVersion");
+                entity.Property(e => e.DateFrom)
+                    .HasColumnName("DateFrom");
+                entity.Property(e => e.DateTo)
+                    .HasColumnName("DateTo");
+                entity.Property(e => e.ProductUpdateDescription)
+                    .HasColumnName("ProductUpdateDescription");
+                entity.Property(e => e.UpdateSupportDuration)
+                    .HasColumnName("UpdateSupportExtension");
+                entity.Property(e => e.IdDiscount)
+                    .HasColumnName("IdDiscount");
+                entity.Property(e => e.Value)
+                    .HasColumnName("Value");
+                entity.Property(e => e.TotalPrice)
+                    .HasColumnName("TotalPrice");
+
+                entity.HasOne(e => e.Client)
+                    .WithMany(e => e.ProductContracts)
+                    .HasForeignKey(e => e.IdClient);
+
+                entity.HasOne(e => e.Product)
+                    .WithMany(e => e.ProductContracts)
+                    .HasForeignKey(e => e.IdProduct);
+
+                entity.HasOne(e => e.Discount)
+                    .WithMany(e => e.ProductContracts)
+                    .HasForeignKey(e => e.IdDiscount);
             });
         }
     }
