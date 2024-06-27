@@ -7,5 +7,6 @@ namespace Projekt.Repositories.Interfaces
     {
         Task<int> AddProductContract(ProductContractAddRequest productContractAddRequest, int updateSupportDuration, CancellationToken cancellationToken);
         Task<ProductContract> GetProductContract(int idProductContract, CancellationToken cancellationToken);
+        Task<List<ProductContract>> GetProductContractsList(int idProduct, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken);
     }
 }

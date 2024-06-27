@@ -1,7 +1,7 @@
 ﻿using Projekt.Models.Domain;
 using System.ComponentModel.DataAnnotations;
 
-namespace Projekt.Models.Payment
+namespace Projekt.Models.Payment.Request
 {
     public class ProductContractPaymentRequest
     {
@@ -14,7 +14,7 @@ namespace Projekt.Models.Payment
         public decimal PaymentValue { get; set; }
         public void VerifyBody()
         {
-            if(PaymentValue <= 0m)
+            if (PaymentValue <= 0m)
             {
                 throw new ArgumentException("The PaymentValue cannot be smaller or equal than 0");
             }

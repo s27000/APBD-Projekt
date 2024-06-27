@@ -75,15 +75,15 @@ namespace Projekt.Repositories
         {
             var bestAvailableDiscount = await _context.Discounts
                 .Where(discount => discount.DateFrom < productContractAddRequest.DateTo
-                && discount.DateTo > productContractAddRequest.DateFrom)
+                    && discount.DateTo > productContractAddRequest.DateFrom)
                 .OrderByDescending(discount => discount.Value)
                 .FirstOrDefaultAsync(cancellationToken);
 
             var bestDiscountValue = bestAvailableDiscount?.Value ?? 0;
 
             if (await _context.ProductContracts
-                .Where(e => e.IdClient == productContractAddRequest.IdClient)
-                .AnyAsync(cancellationToken)
+                    .Where(e => e.IdClient == productContractAddRequest.IdClient)
+                    .AnyAsync(cancellationToken)
                 && bestDiscountValue < 5)
             {
                 bestDiscountValue = 5;
@@ -97,6 +97,16 @@ namespace Projekt.Repositories
             return await _context.ProductContracts
                 .Where(e => e.IdProductContract == idProductContract).FirstOrDefaultAsync(cancellationToken) 
                 ?? throw new NotFoundException("ProductContract does not exist");
+        }
+
+
+        public async Task<List<ProductContract>> GetProductContractsList(int idProduct, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
+        {
+            return await _context.ProductContracts
+                .Where(e => e.IdProduct == idProduct
+                    && e.DateFrom < dateTo
+                    && e.DateTo > dateFrom)
+                .ToListAsync(cancellationToken);
         }
     }
 }
