@@ -33,7 +33,7 @@ namespace Projekt.Repositories
                 .OrderByDescending(discount => discount.Value)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            var bestDiscountValue = bestDiscount?.Value ?? 0;
+            var bestDiscountValue = await GetBestDiscountValue(productContractAddRequest, cancellationToken);
 
             decimal totalPrice = Math.Round((product.AnnualPrice + productContractAddRequest.UpdateSupportExtension * 1000m)
                 * ((100 - bestDiscountValue) / 100m), 2);
@@ -52,15 +52,15 @@ namespace Projekt.Repositories
                 TotalPrice = totalPrice
             };
 
-            await _context.ProductContract.AddAsync(newProductContract);
+            await _context.ProductContracts.AddAsync(newProductContract);
             await _context.SaveChangesAsync();
 
-            return newProductContract.IdContract;
+            return newProductContract.IdProductContract;
         }
 
         private async Task HasNoActiveContract(ProductContractAddRequest productContractAddRequest, CancellationToken cancellationToken)
         {
-            var productContract = await _context.ProductContract
+            var productContract = await _context.ProductContracts
                 .Where(e => e.IdClient == productContractAddRequest.IdClient && e.IdProduct == productContractAddRequest.IdProduct)
                 .FirstOrDefaultAsync();
 
@@ -69,6 +69,34 @@ namespace Projekt.Repositories
                     && productContract.DateTo > productContractAddRequest.DateFrom)){
                 throw new AlreadyPurchasedException("This client signed a contract for this product");
             }
+        }
+
+        private async Task<int> GetBestDiscountValue(ProductContractAddRequest productContractAddRequest, CancellationToken cancellationToken)
+        {
+            var bestAvailableDiscount = await _context.Discounts
+                .Where(discount => discount.DateFrom < productContractAddRequest.DateTo
+                && discount.DateTo > productContractAddRequest.DateFrom)
+                .OrderByDescending(discount => discount.Value)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            var bestDiscountValue = bestAvailableDiscount?.Value ?? 0;
+
+            if (await _context.ProductContracts
+                .Where(e => e.IdClient == productContractAddRequest.IdClient)
+                .AnyAsync(cancellationToken)
+                && bestDiscountValue < 5)
+            {
+                bestDiscountValue = 5;
+            }
+
+            return bestDiscountValue;
+        }
+
+        public async Task<ProductContract> GetProductContract(int idProductContract, CancellationToken cancellationToken)
+        {
+            return await _context.ProductContracts
+                .Where(e => e.IdProductContract == idProductContract).FirstOrDefaultAsync(cancellationToken) 
+                ?? throw new NotFoundException("ProductContract does not exist");
         }
     }
 }

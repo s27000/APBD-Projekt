@@ -57,11 +57,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 //Services
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 builder.Services.AddAuthentication(options =>

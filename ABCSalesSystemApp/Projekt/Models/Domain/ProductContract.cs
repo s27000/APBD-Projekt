@@ -4,7 +4,7 @@ namespace Projekt.Models.Domain
 {
     public class ProductContract
     {
-        public int IdContract { get; set; }
+        public int IdProductContract { get; set; }
         public int IdClient { get; set; }
         public int IdProduct { get; set; }
         public string ProductVersion { get; set; }
@@ -18,5 +18,6 @@ namespace Projekt.Models.Domain
         public virtual Client Client { get; set; }
         public virtual Product Product { get; set; }
         public virtual Discount? Discount { get; set; }
+        public virtual ICollection<ProductContractPayment> ProductContractPayments { get; set; }
     }
 }

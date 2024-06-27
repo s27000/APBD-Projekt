@@ -14,7 +14,7 @@ namespace Projekt.Controllers
             _contractService = contractService;
         }
 
-        [HttpPost("create")]
+        [HttpPost("productContract")]
         public async Task<IActionResult> AddProductContract(ProductContractAddRequest productContractAddRequest, CancellationToken cancellationToken)
         {
             var newContractId = await _contractService.AddProductContract(productContractAddRequest, cancellationToken);

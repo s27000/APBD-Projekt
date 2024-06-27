@@ -12,7 +12,8 @@ namespace Projekt.Context
         public virtual DbSet<Firm> Firms { get; set; }
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<Discount> Discounts { get; set; }
-        public virtual DbSet<ProductContract> ProductContract { get; set; }
+        public virtual DbSet<ProductContract> ProductContracts { get; set; }
+        public virtual DbSet<ProductContractPayment> ProductContractPayments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>(entity =>
@@ -136,12 +137,12 @@ namespace Projekt.Context
 
             modelBuilder.Entity<ProductContract>(entity =>
             {
-                entity.HasKey(e => e.IdContract);
+                entity.HasKey(e => e.IdProductContract);
 
                 entity.ToTable("productContract");
 
-                entity.Property(e => e.IdContract)
-                    .HasColumnName("IdContract");
+                entity.Property(e => e.IdProductContract)
+                    .HasColumnName("IdProductContract");
                 entity.Property(e => e.IdClient)
                     .HasColumnName("IdClient");
                 entity.Property(e => e.IdProduct)
@@ -174,6 +175,28 @@ namespace Projekt.Context
                 entity.HasOne(e => e.Discount)
                     .WithMany(e => e.ProductContracts)
                     .HasForeignKey(e => e.IdDiscount);
+            });
+
+            modelBuilder.Entity<ProductContractPayment>(entity =>
+            {
+                entity.HasKey(e => e.IdProductContractPayment);
+
+                entity.ToTable("productContractPayment");
+
+                entity.Property(e => e.IdProductContractPayment)
+                    .HasColumnName("IdProductContractPayment");
+                entity.Property(e => e.IdProductContract)
+                    .HasColumnName("IdProductContract");
+                entity.Property(e => e.Description)
+                    .HasColumnName("Description");
+                entity.Property(e => e.Date)
+                    .HasColumnName("Date");
+                entity.Property(e => e.PaymentValue)
+                    .HasColumnName("PaymentValue");
+
+                entity.HasOne(e => e.ProductContract)
+                    .WithMany(e => e.ProductContractPayments)
+                    .HasForeignKey(e => e.IdProductContract);
             });
         }
     }
