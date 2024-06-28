@@ -1,6 +1,7 @@
 ﻿using Projekt.Exceptions;
 using Projekt.Models.Contract;
 using Projekt.Models.Payment.Request;
+using Projekt.Repositories;
 using Projekt.Repositories.Interfaces;
 using Projekt.Services.Interfaces;
 
