@@ -64,7 +64,7 @@ namespace Projekt.Repositories
             await _context.SubscriptionContractPayments.AddAsync(newSubscriptionContractPayment, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return newSubscriptionContractPayment.IdSubscriptionContract;
+            return newSubscriptionContractPayment.IdSubscriptionContractPayment;
         }
 
         public async Task<ProductIncomeResponse> GetProductPredictedIncome(TotalIncomeRequest totalIncomeRequest, int idProduct, CancellationToken cancellationToken)
