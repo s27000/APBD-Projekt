@@ -190,5 +190,14 @@ namespace Projekt.Repositories
 
             return subscriptionRenewelContract.IdSubscriptionContract;
         }
+
+        public async Task<List<SubscriptionContract>> GetSubscriptionContractsList(int idSubscription, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken)
+        {
+            return await _context.SubscriptionContracts
+                .Where(e => e.IdSubscription == idSubscription
+                    && e.DateFrom < dateTo
+                    && e.DateTo > dateFrom)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

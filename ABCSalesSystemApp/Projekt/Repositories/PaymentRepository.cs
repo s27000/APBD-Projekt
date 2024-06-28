@@ -45,7 +45,12 @@ namespace Projekt.Repositories
             var subscriptionContract = await _contractRepository.GetSubscriptionContract(subscriptionContractPaymentRequest.IdSubscriptionContract, cancellationToken);
             PaymentDateIsValid(subscriptionContractPaymentRequest.Date, subscriptionContract.DateFrom, subscriptionContract.DateTo);
 
-            await SubscriptionContractIsNotPaidFor(subscriptionContract, cancellationToken);
+            bool isPaid = await SubscriptionContractIsPaidFor(subscriptionContract, cancellationToken);
+            if (isPaid)
+            {
+                throw new AlreadyPurchasedException("This Contract has already been fulfilled");
+            }
+
             SubscriptionPaymentIsCorrect(subscriptionContract, subscriptionContractPaymentRequest.PaymentValue, cancellationToken);
 
             var newSubscriptionContractPayment = new SubscriptionContractPayment()
@@ -67,15 +72,30 @@ namespace Projekt.Repositories
             var product = await _context.Products
                 .Where(e => e.IdProduct == idProduct)
                 .FirstOrDefaultAsync(cancellationToken)
-                ?? throw new NotFoundException("Product does not exist"); ;
+                ?? throw new NotFoundException("Product does not exist");
 
-            decimal totalProductPredictedIncome = 0m;
+            var subscriptionList = await _context.Subscriptions
+                .Where(e => e.IdProduct == idProduct)
+                .ToListAsync(cancellationToken);
+
+            decimal contractPredictedIncome = 0m;
+            decimal subscriptionPredictedIncome = 0m;
+
             var productContractsList = await _contractRepository.GetProductContractsList(product.IdProduct, totalIncomeRequest.DateFrom, totalIncomeRequest.DateTo, cancellationToken);
 
             foreach (var productContract in productContractsList)
             {
                 var totalContractPayment = await GetTotalProductContractPayment(productContract, cancellationToken);
-                totalProductPredictedIncome += productContract.TotalPrice;
+                contractPredictedIncome += productContract.TotalPrice;
+            }
+
+            foreach (var subscription in subscriptionList)
+            {
+                var subscriptionContractsList = await _contractRepository.GetSubscriptionContractsList(subscription.IdSubscription, totalIncomeRequest.DateFrom, totalIncomeRequest.DateTo, cancellationToken);
+                foreach (var subscriptionContract in subscriptionContractsList)
+                {
+                    subscriptionPredictedIncome += subscriptionContract.Price;
+                }
             }
 
             var productResponce = new ProductIncomeResponse()
@@ -83,7 +103,9 @@ namespace Projekt.Repositories
                 Name = product.Name,
                 Description = product.Description,
                 ProductCategory = product.ProductCategory.ToString(),
-                TotalIncome = totalProductPredictedIncome
+                ContractIncome = contractPredictedIncome,
+                SubscriptionIncome = subscriptionPredictedIncome,
+                TotalProductIncome = contractPredictedIncome + subscriptionPredictedIncome
             };
 
             return productResponce;
@@ -94,9 +116,15 @@ namespace Projekt.Repositories
             var product = await _context.Products
                 .Where(e => e.IdProduct == idProduct)
                 .FirstOrDefaultAsync(cancellationToken)
-                ?? throw new NotFoundException("Product does not exist"); ;
+                ?? throw new NotFoundException("Product does not exist");
 
-            decimal totalProductRealIncome = 0m;
+            var subscriptionList = await _context.Subscriptions
+                .Where(e => e.IdProduct == idProduct)
+                .ToListAsync(cancellationToken);
+
+            decimal contractRealIncome = 0m;
+            decimal subscriptionRealIncome = 0m;
+
             var productContractsList = await _contractRepository.GetProductContractsList(product.IdProduct, totalIncomeRequest.DateFrom, totalIncomeRequest.DateTo, cancellationToken);
 
             foreach (var productContract in productContractsList)
@@ -104,7 +132,19 @@ namespace Projekt.Repositories
                 var totalContractPayment = await GetTotalProductContractPayment(productContract, cancellationToken);
                 if (totalContractPayment == productContract.TotalPrice)
                 {
-                    totalProductRealIncome += productContract.TotalPrice;
+                    contractRealIncome += productContract.TotalPrice;
+                }
+            }
+
+            foreach (var subscription in subscriptionList)
+            {
+                var subscriptionContractsList = await _contractRepository.GetSubscriptionContractsList(subscription.IdSubscription, totalIncomeRequest.DateFrom, totalIncomeRequest.DateTo, cancellationToken);
+                foreach(var subscriptionContract in subscriptionContractsList)
+                {
+                    if(await SubscriptionContractIsPaidFor(subscriptionContract, cancellationToken))
+                    {
+                        subscriptionRealIncome += subscriptionContract.Price;
+                    }
                 }
             }
 
@@ -113,7 +153,9 @@ namespace Projekt.Repositories
                 Name = product.Name,
                 Description = product.Description,
                 ProductCategory = product.ProductCategory.ToString(),
-                TotalIncome = totalProductRealIncome
+                ContractIncome = contractRealIncome,
+                SubscriptionIncome = subscriptionRealIncome,
+                TotalProductIncome = contractRealIncome + subscriptionRealIncome
             };
 
             return productResponce;
@@ -125,20 +167,25 @@ namespace Projekt.Repositories
 
             var productIncomeResponceList = new List<ProductIncomeResponse>();
 
+            var totalContractPredictedIncome = 0m;
+            var totalSubscriptonPredictedIncome = 0m;
             var totalPredictedIncome = 0m;
 
             foreach (var product in products)
             {
                 var productResponce = await GetProductPredictedIncome(totalIncomeRequest, product.IdProduct, cancellationToken);
 
-                totalPredictedIncome += productResponce.TotalIncome;
-
+                totalContractPredictedIncome += productResponce.ContractIncome;
+                totalSubscriptonPredictedIncome += productResponce.SubscriptionIncome;
+                totalPredictedIncome += productResponce.TotalProductIncome;
                 productIncomeResponceList.Add(productResponce);
             }
 
             return new TotalIncomeResponse()
             {
                 Products = productIncomeResponceList,
+                TotalContractIncome = totalContractPredictedIncome,
+                TotalSubscriptionIncome = totalSubscriptonPredictedIncome,
                 TotalIncome = totalPredictedIncome
             };
         }
@@ -149,13 +196,17 @@ namespace Projekt.Repositories
 
             var productIncomeResponceList = new List<ProductIncomeResponse>();
 
+            var totalContractRealIncome = 0m;
+            var totalSubscriptonRealIncome = 0m;
             var totalRealIncome = 0m;
 
             foreach (var product in products)
             {
                 var productResponce = await GetProductRealIncome(totalIncomeRequest, product.IdProduct, cancellationToken);
-                
-                totalRealIncome += productResponce.TotalIncome;
+
+                totalContractRealIncome += productResponce.ContractIncome;
+                totalSubscriptonRealIncome += productResponce.SubscriptionIncome;
+                totalRealIncome += productResponce.TotalProductIncome;
 
                 productIncomeResponceList.Add(productResponce);
             }
@@ -163,6 +214,8 @@ namespace Projekt.Repositories
             return new TotalIncomeResponse()
             {
                 Products = productIncomeResponceList,
+                TotalContractIncome = totalContractRealIncome,
+                TotalSubscriptionIncome = totalSubscriptonRealIncome,
                 TotalIncome = totalRealIncome
             };
         }
@@ -174,7 +227,7 @@ namespace Projekt.Repositories
                 .SumAsync(e => e.PaymentValue, cancellationToken);
         }
 
-        private async Task SubscriptionContractIsNotPaidFor(SubscriptionContract subscriptionContract, CancellationToken cancellationToken)
+        private async Task<bool> SubscriptionContractIsPaidFor(SubscriptionContract subscriptionContract, CancellationToken cancellationToken)
         {
             var isAlreadyPurchased = await _context.SubscriptionContractPayments
                 .Where(e => e.IdSubscriptionContract == subscriptionContract.IdSubscriptionContract)
@@ -182,8 +235,9 @@ namespace Projekt.Repositories
 
             if (isAlreadyPurchased)
             {
-                throw new AlreadyPurchasedException("This Contract has already been fulfilled");
+                return true;
             }
+            return false;
         }
 
         private void SubscriptionPaymentIsCorrect(SubscriptionContract subscriptionContract, decimal paymentValue, CancellationToken cancellationToken)

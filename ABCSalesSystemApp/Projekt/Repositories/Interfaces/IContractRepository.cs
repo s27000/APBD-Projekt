@@ -11,5 +11,6 @@ namespace Projekt.Repositories.Interfaces
         Task<ProductContract> GetProductContract(int idProductContract, CancellationToken cancellationToken);
         Task<SubscriptionContract> GetSubscriptionContract(int idSubscriptionContract, CancellationToken cancellationToken);
         Task<List<ProductContract>> GetProductContractsList(int idProduct, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken);
+        Task<List<SubscriptionContract>> GetSubscriptionContractsList(int idSubscription, DateTime dateFrom, DateTime dateTo, CancellationToken cancellationToken);
     }
 }

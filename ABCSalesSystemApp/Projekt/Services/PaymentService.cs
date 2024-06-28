@@ -40,7 +40,9 @@ namespace Projekt.Services
 
             if (!currency.IsNullOrEmpty() && currency != "PLN")
             {
-                productPredictedIncome.TotalIncome = await _currencyClient.ConvertPLNToCurrency(productPredictedIncome.TotalIncome, currency, cancellationToken);
+                productPredictedIncome.ContractIncome = await _currencyClient.ConvertPLNToCurrency(productPredictedIncome.ContractIncome, currency, cancellationToken);
+                productPredictedIncome.SubscriptionIncome = await _currencyClient.ConvertPLNToCurrency(productPredictedIncome.SubscriptionIncome, currency, cancellationToken);
+                productPredictedIncome.TotalProductIncome = await _currencyClient.ConvertPLNToCurrency(productPredictedIncome.TotalProductIncome, currency, cancellationToken);
             }
 
             return productPredictedIncome;
@@ -53,7 +55,9 @@ namespace Projekt.Services
 
             if(!currency.IsNullOrEmpty() && currency != "PLN")
             {
-                productRealIncome.TotalIncome = await _currencyClient.ConvertPLNToCurrency(productRealIncome.TotalIncome, currency, cancellationToken);
+                productRealIncome.ContractIncome = await _currencyClient.ConvertPLNToCurrency(productRealIncome.ContractIncome, currency, cancellationToken);
+                productRealIncome.SubscriptionIncome = await _currencyClient.ConvertPLNToCurrency(productRealIncome.SubscriptionIncome, currency, cancellationToken);
+                productRealIncome.TotalProductIncome = await _currencyClient.ConvertPLNToCurrency(productRealIncome.TotalProductIncome, currency, cancellationToken);
             }
 
             return productRealIncome;
@@ -69,8 +73,12 @@ namespace Projekt.Services
                 totalPredictedIncome.Currency = currency;
                 foreach (var product in totalPredictedIncome.Products)
                 {
-                    product.TotalIncome = await _currencyClient.ConvertPLNToCurrency(product.TotalIncome, currency, cancellationToken);
+                    product.ContractIncome = await _currencyClient.ConvertPLNToCurrency(product.ContractIncome, currency, cancellationToken);
+                    product.SubscriptionIncome = await _currencyClient.ConvertPLNToCurrency(product.SubscriptionIncome, currency, cancellationToken);
+                    product.TotalProductIncome = await _currencyClient.ConvertPLNToCurrency(product.TotalProductIncome, currency, cancellationToken);
                 }
+                totalPredictedIncome.TotalContractIncome = await _currencyClient.ConvertPLNToCurrency(totalPredictedIncome.TotalContractIncome, currency, cancellationToken);
+                totalPredictedIncome.TotalSubscriptionIncome = await _currencyClient.ConvertPLNToCurrency(totalPredictedIncome.TotalSubscriptionIncome, currency, cancellationToken);
                 totalPredictedIncome.TotalIncome = await _currencyClient.ConvertPLNToCurrency(totalPredictedIncome.TotalIncome, currency, cancellationToken);
             }
             else
@@ -91,8 +99,12 @@ namespace Projekt.Services
                 totalRealIncome.Currency = currency;
                 foreach (var product in totalRealIncome.Products)
                 {
-                    product.TotalIncome = await _currencyClient.ConvertPLNToCurrency(product.TotalIncome, currency, cancellationToken);
+                    product.ContractIncome = await _currencyClient.ConvertPLNToCurrency(product.ContractIncome, currency, cancellationToken);
+                    product.SubscriptionIncome = await _currencyClient.ConvertPLNToCurrency(product.SubscriptionIncome, currency, cancellationToken);
+                    product.TotalProductIncome = await _currencyClient.ConvertPLNToCurrency(product.TotalProductIncome, currency, cancellationToken);
                 }
+                totalRealIncome.TotalContractIncome = await _currencyClient.ConvertPLNToCurrency(totalRealIncome.TotalContractIncome, currency, cancellationToken);
+                totalRealIncome.TotalSubscriptionIncome = await _currencyClient.ConvertPLNToCurrency(totalRealIncome.TotalSubscriptionIncome, currency, cancellationToken);
                 totalRealIncome.TotalIncome = await _currencyClient.ConvertPLNToCurrency(totalRealIncome.TotalIncome, currency, cancellationToken);
             }
             else
